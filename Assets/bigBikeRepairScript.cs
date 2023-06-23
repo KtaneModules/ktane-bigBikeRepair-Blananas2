@@ -139,6 +139,7 @@ public class bigBikeRepairScript : MonoBehaviour {
             SpriteSlots[f+1].sprite = CircleFlaskSprites[CircleFlasks[f]];
         }
 
+        Reroll:
         switch (FlowchartPos%5) {
             case 0: SquareFlasks[0] = Rnd.Range(0,3); 
             for (int s = 1; s < 4; s++) {
@@ -181,6 +182,9 @@ public class bigBikeRepairScript : MonoBehaviour {
             }
             break;
             default: throw new InvalidOperationException();
+        }
+        if (SquareFlasks[1] == SquareFlasks[2] || SquareFlasks[2] == SquareFlasks[3] || SquareFlasks[1] == SquareFlasks[3]) {
+            goto Reroll;
         }
         FinalFlask = SquareFlasks[0];
         Debug.LogFormat("[Big Bike Repair #{0}] Correct square flask: Q{1}", moduleId, FinalFlask);
