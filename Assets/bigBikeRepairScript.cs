@@ -249,4 +249,58 @@ public class bigBikeRepairScript : MonoBehaviour {
             }
         }
     }
+
+    //twitch plays
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} next [Presses the next button] | !{0} potion <pos> [Chooses the potion at the specified position in reading order]";
+    #pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        if (Regex.IsMatch(command, @"^\s*next\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            if (!StageObjects[0].activeSelf)
+            {
+                yield return "sendtochaterror The next button is not currently present!";
+                yield break;
+            }
+            Buttons[0].OnInteract();
+            yield break;
+        }
+        string[] parameters = command.Split(' ');
+        if (Regex.IsMatch(parameters[0], @"^\s*potion\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            yield return null;
+            if (parameters.Length > 2)
+                yield return "sendtochaterror Too many parameters!";
+            else if (parameters.Length == 2)
+            {
+                if (StageObjects[1].activeSelf && parameters[1].EqualsAny("1", "2", "3", "4", "5", "6", "7", "8"))
+                    Buttons[int.Parse(parameters[1])].OnInteract();
+                else if (StageObjects[2].activeSelf && parameters[1].EqualsAny("1", "2", "3", "4"))
+                    Buttons[int.Parse(parameters[1]) + 8].OnInteract();
+                else if (StageObjects[0].activeSelf)
+                    yield return "sendtochaterror There are not any potions currently present!";
+                else
+                    yield return "sendtochaterror!f The specified position '" + parameters[1] + "' is invalid!";
+            }
+            else if (parameters.Length == 1)
+                yield return "sendtochaterror Please specify the position of the potion you wish to choose!";
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        while (StageObjects[0].activeSelf)
+        {
+            Buttons[0].OnInteract();
+            yield return new WaitForSeconds(.1f);
+        }
+        if (StageObjects[1].activeSelf)
+        {
+            Buttons[Array.IndexOf(CircleFlasks, FlowchartPos) + 1].OnInteract();
+            yield return new WaitForSeconds(.1f);
+        }
+        Buttons[Array.IndexOf(SquareFlasks, FinalFlask) + 9].OnInteract();
+    }
 }
